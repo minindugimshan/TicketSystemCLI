@@ -96,3 +96,60 @@ public class TicketingCLI {
             }
         }
     }
+
+    private static void startSystem() {
+        if (!vendorThreads.isEmpty() || !customerThreads.isEmpty()) {
+            System.out.println("System is already running!");
+            return;
+        }
+
+        // Initialize the ticket pool
+        ticketPool = new TicketPool(maxTicketCapacity, totalTickets);
+
+        // Create and start 3 vendor threads
+        for (int i = 0; i < 3; i++) {
+            Vendor vendor = new Vendor(ticketPool, ticketReleaseRate);
+            Thread vendorThread = new Thread(vendor, "Vendor-" + (i + 1));
+            vendorThreads.add(vendorThread);
+            vendorThread.start();
+        }
+
+        // Create and start 5 customer threads
+        for (int i = 0; i < 5; i++) {
+            Customer customer = new Customer(ticketPool, customerRetrievalRate);
+            Thread customerThread = new Thread(customer, "Customer-" + (i + 1));
+            customerThreads.add(customerThread);
+            customerThread.start();
+        }
+
+        System.out.println("System started with 3 Vendors and 5 Customers.");
+    }
+
+    private static void stopSystem() {
+        // Interrupt all vendor threads
+        for (Thread vendorThread : vendorThreads) {
+            vendorThread.interrupt();
+        }
+
+        // Interrupt all customer threads
+        for (Thread customerThread : customerThreads) {
+            customerThread.interrupt();
+        }
+
+        // Clear the thread lists
+        vendorThreads.clear();
+        customerThreads.clear();
+
+        System.out.println("System stopped.");
+    }
+
+    private static void viewTicketPoolStatus() {
+        if (ticketPool == null) {
+            System.out.println("System not started yet.");
+        } else {
+            System.out.println("Current tickets in pool: " + ticketPool.getTicketCount());
+            System.out.println("Total tickets added: " + ticketPool.getTotalTicketsAdded());
+            System.out.println("Total tickets removed: " + ticketPool.getTotalTicketsRemoved());
+        }
+    }
+}
