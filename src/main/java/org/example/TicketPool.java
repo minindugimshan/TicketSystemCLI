@@ -3,6 +3,9 @@ package org.example;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ * Represents a shared pool of tickets for a ticketing system.
+ */
 public class TicketPool {
     private final Queue<Integer> tickets = new LinkedList<>();
     private final int maxCapacity;
@@ -10,11 +13,14 @@ public class TicketPool {
     private int totalTicketsAdded = 0;
     private int totalTicketsRemoved = 0;
 
+// Constructor to initialize the TicketPool with maximum capacity and total tickets.
     public TicketPool(int maxCapacity, int totalTickets) {
         this.maxCapacity = maxCapacity;
         this.totalTickets = totalTickets;
     }
 
+/** Adds tickets to the pool while ensuring that the pool does not exceed its capacity
+   or the total ticket limit.*/
     public synchronized void addTickets(int count) {
         // Check for space or the total ticket limit before adding tickets
         while (tickets.size() >= maxCapacity || totalTicketsAdded >= totalTickets) {
@@ -36,12 +42,14 @@ public class TicketPool {
             totalTicketsAdded++;
         }
 
+        // Notify waiting threads that tickets have been added
         System.out.println(Thread.currentThread().getName() + " added " + ticketsToAdd + " tickets. Total tickets added: " + totalTicketsAdded);
-        notifyAll(); // Notify waiting threads that tickets have been added
+        notifyAll();
     }
 
+/**
+ * Purchases tickets from the pool while ensuring that tickets are available.*/
     public synchronized void purchaseTickets(int count) {
-        // Wait until tickets are available for purchase
         while (tickets.isEmpty()) {
             try {
                 wait();
@@ -60,8 +68,9 @@ public class TicketPool {
             totalTicketsRemoved++;
         }
 
+        // Notify waiting threads that tickets have been purchased
         System.out.println(Thread.currentThread().getName() + " purchased " + ticketsToRemove + " tickets. Total tickets removed: " + totalTicketsRemoved);
-        notifyAll(); // Notify waiting threads that tickets have been purchased
+        notifyAll();
     }
 
     // Get the number of tickets currently in the pool
@@ -69,7 +78,7 @@ public class TicketPool {
         return tickets.size();
     }
 
-    // Check if the system has finished processing tickets (all tickets added and pool empty)
+    // Check if the system has finished processing tickets
     public synchronized boolean isSystemComplete() {
         return totalTicketsAdded >= totalTickets && tickets.isEmpty();
     }

@@ -6,11 +6,13 @@ import java.util.Scanner;
 
 public class TicketingCLI {
 
+    // Configuration variables
     private static int totalTickets;
     private static int ticketReleaseRate;
     private static int customerRetrievalRate;
     private static int maxTicketCapacity;
 
+    // Lists to manage vendor and customer threads
     private static final List<Thread> vendorThreads = new ArrayList<>();
     private static final List<Thread> customerThreads = new ArrayList<>();
     private static TicketPool ticketPool;
@@ -19,17 +21,23 @@ public class TicketingCLI {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("==== Real-Time Event Ticketing System ====");
+        System.out.println("**** Real-Time Event Ticketing System ****");
         System.out.println("Please enter system configuration:");
 
+        // Collect configuration inputs from the user
         totalTickets = getPositiveIntegerInput(scanner, "Total Tickets: ");
         ticketReleaseRate = getPositiveIntegerInput(scanner, "Ticket Release Rate (tickets/second): ");
         customerRetrievalRate = getPositiveIntegerInput(scanner, "Customer Retrieval Rate (tickets/second): ");
         maxTicketCapacity = getPositiveIntegerInput(scanner, "Maximum Ticket Capacity in Pool: ");
 
         System.out.println("\nConfiguration Completed!");
+        // Start the main menu loop
         displayMenu(scanner);
     }
+
+
+//      Prompt the user for a positive integer input.
+//      Repeats until a valid value is entered.
 
     private static int getPositiveIntegerInput(Scanner scanner, String prompt) {
         while (true) {
@@ -50,12 +58,13 @@ public class TicketingCLI {
     }
 
 
+    /**Displays the main menu and handles user selections.*/
     private static void displayMenu(Scanner scanner) {
         boolean systemStarted = false;
 
         while (true) {
             if (!systemStarted) {
-                System.out.println("\n==== Main Menu ====");
+                System.out.println("\n**** Main Menu ****");
                 System.out.println("1. Start System");
                 System.out.println("2. View Ticket Pool Status");
                 System.out.println("3. Stop System");
@@ -68,20 +77,21 @@ public class TicketingCLI {
 
                 switch (choice) {
                     case 1 -> {
+                        // Start the ticketing system
                         if (systemStarted) {
                             System.out.println("System is already running!");
                         } else {
                             startSystem();
-                            systemStarted = true; // Prevent showing the menu right after starting
+                            systemStarted = true;
                         }
                     }
                     case 2 -> {
                         viewTicketPoolStatus();
-                        systemStarted = false; // Allow redisplay after showing the status
+                        systemStarted = false;
                     }
                     case 3 -> {
                         stopSystem();
-                        systemStarted = false; // Allow redisplay after stopping the system
+                        systemStarted = false;
                     }
                     case 4 -> {
                         System.out.println("Exiting the system. Goodbye!");
@@ -91,12 +101,16 @@ public class TicketingCLI {
                 }
             } catch (Exception e) {
                 System.out.println("Invalid input! Please enter a valid number.");
-                scanner.nextLine(); // Clear invalid input
+                scanner.nextLine();
                 systemStarted = false; // Re-display menu for invalid input
             }
         }
     }
 
+    /**
+     * Starts the ticketing system by initializing the ticket pool
+     * and creating vendor and customer threads.
+     */
     private static void startSystem() {
         if (!vendorThreads.isEmpty() || !customerThreads.isEmpty()) {
             System.out.println("System is already running!");
@@ -143,6 +157,7 @@ public class TicketingCLI {
         System.out.println("System stopped.");
     }
 
+    /**Displays the current status of the ticket pool**/
     private static void viewTicketPoolStatus() {
         if (ticketPool == null) {
             System.out.println("System not started yet.");
